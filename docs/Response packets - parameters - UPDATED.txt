@@ -1,0 +1,202 @@
+-	Parameters from JSON of AEH-W4B1
+
+Property		RO	Values	Comments									-> Corresponding name  -> bit:	offset	length	Values
+f_electricity	x	Integer	
+f_e_arkgrille	x	0, 1	
+f_e_incoiltemp	x	0, 1	
+f_e_incom		x	0, 1	
+f_e_indisplay	x	0, 1	
+f_e_ineeprom	x	0, 1	
+f_e_inele		x	0, 1	
+f_e_infanmotor	x	0, 1	
+f_e_inhumidity	x	0, 1	
+f_e_inkeys		x	0, 1	
+f_e_inlow		x	0, 1	
+f_e_intemp		x	0, 1	
+f_e_invzero		x	0, 1	
+f_e_outcoiltemp	x	0, 1	
+f_e_outeeprom	x	0, 1	
+f_e_outgastemp	x	0, 1	
+f_e_outmachine2	x	0, 1	
+f_e_outmachine	x	0, 1	
+f_e_outtemp		x	0, 1	
+f_e_outtemplow	x	0, 1	
+f_e_push		x	0, 1	
+f_filterclean	x	0, 1	Does the filter require cleaning
+f_humidity		x	Integer	Relative humidity percent					-> indoor_humidity_status		57		8		(not set)
+f_power_display	x	0, 1	
+f_temp_in		x	Decimal	Environment temperature in Fahrenheit		-> indoor_temperature_status	33		8		°C or °F based on settings
+f_voltage		x	Integer	
+t_backlight			ON, OFF	Turn the display on/off						-> back_led						169		1		0 off, 1 on
+t_device_info		0, 1	
+t_display_power		0, 1	
+t_eco				OFF, ON	Economy mode								-> low_electricity				158		1		1 enable
+t_fan_leftright		OFF, ON	Horizontal air flow							-> left_right					154		1		0 directional, 1 swing
+t_fan_mute			OFF, ON	Quite mode									-> mute							166		1		1 enable
+t_fan_power			OFF, ON	Vertical air flow							-> up_down						153		1		0 directional, 1 swing
+t_fan_speed			AUTO, LOWER, LOW, MEDIUM, HIGH, HIGHER	Fan Speed	-> wind_status					1		8		1 AUTO, 2 QUIET, 4 LOW, 6 MED, 8 (0001000) MAX
+t_ftkt_start		Integer	
+t_power				OFF, ON	Power										-> run_status					21		2		0 OFF, 1 ON
+t_run_mode			OFF, ON	Double frequency
+t_setmulti_value	Integer	
+t_sleep				STOP, ONE, TWO, THREE, FOUR	Sleep mode				-> sleep_status					9		8		0 STOP, 1, 2, 3, 4 (000100)
+t_temp				Integer	Temperature in Fahrenheit					-> indoor_temperature_setting	25		8		°C or °F based on settings
+t_temptype			CELSIUS, FAHRENHEIT	Displayed temperature unit		-> temperature_Fahrenheit		86		3
+t_temp_eight		OFF, ON	Eight heat mode
+t_temp_heatcold		OFF, ON	Fast cool heat								-> efficient					159		1		1 enable
+t_work_mode			FAN, HEAT, COOL, DRY, AUTO	Work mode				-> mode_status					17		4		0 FAN, 1 HEAT, 2 COOL, 3 (010) DRY, (maybe 4 for AUTO/SMART, but my multi split does not support AUTO mode)
+
+bit		  name: length (8 default)
+1	Uchar wind_status; // air volume
+9	Uchar sleep_status; // sleep
+	
+17	Uchar mode_status: 4 ; // mode  
+21	Uchar run_status: 2 ; // Run
+23	Uchar direction_status: 2 ; // wind direction
+	// 4
+25	Uchar indoor_temperature_setting; // indoor temperature
+33	Uchar indoor_temperature_status; // indoor temperature
+41	Uchar indoor_pipe_temperature; // indoor tube temperature value
+	// 7
+49	Uchar indoor_humidity_setting; // indoor humidity
+57	Uchar indoor_humidity_status; // indoor humidity
+65	Uchar somatosensory_temperature; / / body temperature
+	// 10
+73	Uchar somatosensory_compensation: 5 ; // Somatosensory compensation
+78	Uchar somatosensory_compensation_ctrl: 3 ; // Somatosensory compensation control
+    // 11
+81	Uchar temperature_compensation: 5 ; // temperature compensation
+86	Uchar temperature_Fahrenheit: 3 ; // Fahrenheit display
+	// 12
+89	Uchar timer; // timed
+	// 13
+97	Uchar hour;
+	// 14
+105	Uchar minute;
+	// 15
+113	Uchar poweron_hour: 5;
+	// 16
+121	Uchar poweron_minute: 6;
+128 Uchar poweron_status: 1;
+	// 17
+129	Uchar poweroff_hour: 5;
+	// 18
+137	Uchar poweroff_minute: 6;
+144 Uchar poweroff_status: 1;
+	// 19
+145	Uchar drying: 4 ;
+149	Uchar wind_door: 4 ;
+	// 20
+153	Uchar up_down: 1 ; // Up and down
+154	Uchar left_right: 1 ; // Left wind
+155	Uchar nature: 1 ; // natural wind
+156	Uchar heat: 1 ; // heating wind
+157	Uchar low_power: 1 ; // energy saving
+158	Uchar low_electricity: 1 ; // Power saving
+159	Uchar efficient: 1 ; // efficient
+160	Uchar dual_frequency: 1 ; // Double frequency
+	// 21
+161	Uchar dew: 1 ; // fresh
+162	Uchar swap: 1 ; // Change the wind
+163	Uchar indoor_clear: 1 ; // indoor cleaning
+164	Uchar outdoor_clear: 1 ; // Outdoor cleaning
+165	Uchar smart_eye: 1 ; // wisdom eye
+166	Uchar mute: 1 ; // mute
+167	Uchar voice: 1 ; // voice
+168	Uchar smoke: 1 ; // except smoke
+	// 22
+169	Uchar back_led: 1 ; // background light
+170	Uchar display_led: 1 ; // display
+171	Uchar indicate_led: 1 ; // light
+172	Uchar indoor_led: 1 ; // indoor and outdoor switching lights
+173	Uchar filter_reset: 1 ; // Filter reset
+174	Uchar left_wind: 1 ; // Left wind
+175	Uchar right_wind: 1 ; // right wind
+176	Uchar indoor_electric: 1 ; // indoor power board
+	// 23
+177	Uchar auto_check: 1 ; // Self-test
+178	time_lapse UCHAR: . 1 ; // timelapse
+179	Uchar rev23: 4 ;
+183	Uchar sample: 1 ; // sample
+184	Uchar indoor_eeprom: 1 ; // eeprom
+	// 24
+185	Uchar indoor_temperature_sensor: 1 ;
+186	Uchar indoor_temperature_pipe_sensor: 1 ;
+187	Uchar indoor_humidity_sensor: 1 ;
+188	Uchar indoor_water_pump: 1 ;
+189	Uchar indoor_machine_run: 1 ;
+190	Uchar indoor_bars: 1 ;
+191	Uchar indoor_zero_voltage: 1 ;
+192	Uchar indoor_outdoor_communication: 1 ;
+	// 25
+193	Uchar display_communication: 1 ;
+194	Uchar keypad_communication: 1 ;
+195	Uchar wifi_communication: 1 ;
+196	Uchar electric_communication: 1 ;
+197	Uchar eeprom_communication: 1 ;
+198	Uchar rev25: 3 ;
+	// 26
+201	Uchar compressor_frequency;
+	// 27
+209	Uchar compressor_frequency_setting;
+	// 28
+217	Uchar compressor_frequency_send;
+	// 29
+225	Uchar outdoor_temperature;
+	// 30
+233	Uchar outdoor_condenser_temperature;
+	// 31
+241	Uchar compressor_exhaust_temperature;
+	// 32
+249	Uchar target_exhaust_temperature;
+	// 33
+257	Uchar expand_threshold;
+	// 34
+265	Uchar UAB_HIGH;
+	// 35
+273	Uchar UAB_LOW;
+	// 36
+281	Uchar UBC_HIGH;
+	// 37
+289	Uchar UBC_LOW;
+	// 38
+297	Uchar UCA_HIGH;
+	// 39
+305	Uchar UCA_LOW;
+	// 40
+313	Uchar IAB;
+	// 41
+321	Uchar IBC;
+	// 42
+329	Uchar ICA;
+	// 43
+337	Uchar generatrix_voltage_high;
+	// 44
+345	Uchar generatrix_voltage_low;
+	// 45
+353	Uchar IUV;
+	// 46
+361	Uchar rev46: 3 ;
+364	Uchar four_way: 1 ;
+365	Uchar outdoor_machine: 1 ;
+366	Uchar wind_machine: 3 ;
+	// 47
+369	Uchar rev47;
+	// 48
+377	Uchar rev48;
+	// 49
+385	Uchar rev49;
+	// 50
+393	Uchar rev50;
+	// 51
+401	Uchar rev51;
+	// 52
+409	Uchar rev52;
+	// 53
+417	Uchar rev53;
+	// 54
+425	Uchar rev54;
+	// 55
+433	Uchar rev55;
+	// 56
+441	Uchar rev56;
