@@ -718,7 +718,19 @@ static const char *const TAG = "hisense_ac.climate";
 class HisenseAC : public PollingComponent, public Climate, public UARTDevice
 {
 public:
-    HisenseAC(UARTComponent *parent) : PollingComponent(2000), UARTDevice(parent) {}
+    HisenseAC(UARTComponent *parent) : PollingComponent(2000),
+                                       UARTDevice(parent),
+                                       compressor_frequency(),
+                                       compressor_frequency_setting(),
+                                       compressor_frequency_send(),
+                                       outdoor_temperature(),
+                                       outdoor_condenser_temperature(),
+                                       compressor_exhaust_temperature(),
+                                       target_exhaust_temperature(),
+                                       indoor_pipe_temperature(),
+                                       indoor_humidity_setting(),
+                                       indoor_humidity_status(),
+                                       UART_crc_errors() {}
 
     void setup() override
     {
@@ -952,6 +964,7 @@ public:
             set_sensor(indoor_pipe_temperature, ((Device_Status*)int_buf)->indoor_pipe_temperature);
             set_sensor(indoor_humidity_setting, ((Device_Status*)int_buf)->indoor_humidity_setting);
             set_sensor(indoor_humidity_status, ((Device_Status*)int_buf)->indoor_humidity_status);
+            set_sensor(UART_crc_errors, get_uart_crc_errors());
 
             // Save target temperature since it gets messed up by the mode switch command
             if (this->mode == CLIMATE_MODE_COOL && target_temperature > 0)
@@ -1195,17 +1208,17 @@ public:
         return traits;
     }
 
-    Sensor *compressor_frequency = new Sensor;
-    Sensor *compressor_frequency_setting = new Sensor;
-    Sensor *compressor_frequency_send = new Sensor;
-    Sensor *outdoor_temperature = new Sensor;
-    Sensor *outdoor_condenser_temperature = new Sensor;
-    Sensor *compressor_exhaust_temperature = new Sensor;
-    Sensor *target_exhaust_temperature = new Sensor;
-    Sensor *indoor_pipe_temperature = new Sensor;
-    Sensor *indoor_humidity_setting = new Sensor;
-    Sensor *indoor_humidity_status = new Sensor;
-    Sensor *UART_crc_errors = new Sensor;
+    sensor::Sensor compressor_frequency;
+    sensor::Sensor compressor_frequency_setting;
+    sensor::Sensor compressor_frequency_send;
+    sensor::Sensor outdoor_temperature;
+    sensor::Sensor outdoor_condenser_temperature;
+    sensor::Sensor compressor_exhaust_temperature;
+    sensor::Sensor target_exhaust_temperature;
+    sensor::Sensor indoor_pipe_temperature;
+    sensor::Sensor indoor_humidity_setting;
+    sensor::Sensor indoor_humidity_status;
+    sensor::Sensor UART_crc_errors;
 
 private:
     float heat_tgt_temp = 16;
@@ -1249,6 +1262,7 @@ private:
                 rxd_checksum,
                 available());
             read_success = false;
+            ++uart_crc_errors;
         }
 
         return read_success;
@@ -1266,6 +1280,10 @@ private:
     {
         if (!sensor.has_state() || sensor.get_raw_state() != value)
             sensor.publish_state(value);
+    }
+    uint8_t get_uart_crc_errors()
+    {
+        return uart_crc_errors;
     }
 
     void set_temp(float temp)
@@ -1332,4 +1350,5 @@ private:
 
     uint8_t int_buf[256];
     // Device_Status dev_stat;
+    uint8_t uart_crc_errors = 0;
 };
