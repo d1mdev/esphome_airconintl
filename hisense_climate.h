@@ -730,7 +730,7 @@ public:
                                        indoor_pipe_temperature(),
                                        indoor_humidity_setting(),
                                        indoor_humidity_status(),
-                                       UART_crc_errors() {}
+                                       UART_crc_errors(0) {}
 
     void setup() override
     {
@@ -1261,8 +1261,8 @@ private:
                 checksum,
                 rxd_checksum,
                 available());
+            set_uart_crc_errors();
             read_success = false;
-            ++uart_crc_errors;
         }
 
         return read_success;
@@ -1281,9 +1281,16 @@ private:
         if (!sensor.has_state() || sensor.get_raw_state() != value)
             sensor.publish_state(value);
     }
-    uint8_t get_uart_crc_errors()
+    
+    uint8_t get_uart_crc_errors() const
     {
         return uart_crc_errors;
+    }
+    
+    void set_uart_crc_errors()
+    {
+        if (uart_crc_errors < 100)
+            ++uart_crc_errors;
     }
 
     void set_temp(float temp)
