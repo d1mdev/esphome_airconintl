@@ -21,8 +21,7 @@ public:
                                        indoor_pipe_temperature(),
                                        indoor_humidity_setting(),
                                        indoor_humidity_status(),
-                                       UART_crc_errors(),
-                                       send_custom_command() {}
+                                       UART_crc_errors() {}
 
     void send_custom_command(const char* c_cmd)
     {
