@@ -4,10 +4,12 @@
 
 static const char *const TAG = "hisense_ac.climate";
 
+static const uint32_t ESPAC_POLL_INTERVAL = 2000; // in milliseconds,
+
 class HisenseAC : public PollingComponent, public Climate, public UARTDevice
 {
 public:
-    HisenseAC(UARTComponent *parent) : PollingComponent(2000),
+    HisenseAC(UARTComponent *parent) : PollingComponent(ESPAC_POLL_INTERVAL),
                                        UARTDevice(parent),
                                        compressor_frequency(),
                                        compressor_frequency_setting(),
@@ -19,13 +21,14 @@ public:
                                        indoor_pipe_temperature(),
                                        indoor_humidity_setting(),
                                        indoor_humidity_status(),
-                                       UART_crc_errors() {}
+                                       UART_crc_errors(),
+                                       send_custom_command() {}
 
-    void send_custom_command()
+    void send_custom_command(const char* c_cmd)
     {
-        ESP_LOGD(TAG, "Custom command received from outside.");
+        ESP_LOGD(TAG, "Custom command: %s received from outside.", c_cmd);
     }
-    
+
     void setup() override
     {
         compressor_frequency.set_state_class(sensor::STATE_CLASS_MEASUREMENT);
@@ -60,28 +63,28 @@ public:
             ESP_LOGD(
                 TAG,
                 "compf: %d compf_set: %d compf_snd: %d\n",
-                ((Device_Status*)int_buf)compressor_frequency,
-                ((Device_Status*)int_buf)compressor_frequency_setting,
-                ((Device_Status*)int_buf)compressor_frequency_send);
+                ((Device_Status*)int_buf)->compressor_frequency,
+                ((Device_Status*)int_buf)->compressor_frequency_setting,
+                ((Device_Status*)int_buf)->compressor_frequency_send);
 
             ESP_LOGD(
                 TAG,
                 "out_temp: %d out_cond_temp: %d comp_exh_temp: %d comp_exh_temp_tgt: %d\n",
-                ((Device_Status*)int_buf)outdoor_temperature,
-                ((Device_Status*)int_buf)outdoor_condenser_temperature,
-                ((Device_Status*)int_buf)compressor_exhaust_temperature,
-                ((Device_Status*)int_buf)target_exhaust_temperature);
+                ((Device_Status*)int_buf)->outdoor_temperature,
+                ((Device_Status*)int_buf)->outdoor_condenser_temperature,
+                ((Device_Status*)int_buf)->compressor_exhaust_temperature,
+                ((Device_Status*)int_buf)->target_exhaust_temperature);
 
             ESP_LOGD(
                 TAG,
                 "indoor_pipe_temp %d\n",
-                ((Device_Status*)int_buf)indoor_pipe_temperature);
+                ((Device_Status*)int_buf)->indoor_pipe_temperature);
 
             ESP_LOGD(
                 TAG,
                 "indor_humid_set: %d indoor_humid: %d\n",
-                ((Device_Status*)int_buf)indoor_humidity_setting,
-                ((Device_Status*)int_buf)indoor_humidity_status);
+                ((Device_Status*)int_buf)->indoor_humidity_setting,
+                ((Device_Status*)int_buf)->indoor_humidity_status);
 
             target_temperature = ((Device_Status*)int_buf)->indoor_temperature_setting;
             current_temperature = ((Device_Status*)int_buf)->indoor_temperature_status;
