@@ -21,7 +21,7 @@ public:
                                        indoor_pipe_temperature(),
                                        indoor_humidity_setting(),
                                        indoor_humidity_status(),
-                                       UART_crc_errors() {}
+                                       uart_crc_errors() {}
 
     void send_custom_command(const char* c_cmd)
     {
@@ -40,7 +40,7 @@ public:
         indoor_pipe_temperature.set_state_class(sensor::STATE_CLASS_MEASUREMENT);
         indoor_humidity_setting.set_state_class(sensor::STATE_CLASS_MEASUREMENT);
         indoor_humidity_status.set_state_class(sensor::STATE_CLASS_MEASUREMENT);
-        UART_crc_errors.set_state_class(sensor::STATE_CLASS_MEASUREMENT);
+        uart_crc_errors.set_state_class(sensor::STATE_CLASS_MEASUREMENT);
     }
 
     void update() override
@@ -193,7 +193,7 @@ public:
             set_sensor(indoor_pipe_temperature, ((Device_Status*)int_buf)->indoor_pipe_temperature);
             set_sensor(indoor_humidity_setting, ((Device_Status*)int_buf)->indoor_humidity_setting);
             set_sensor(indoor_humidity_status, ((Device_Status*)int_buf)->indoor_humidity_status);
-            set_sensor(UART_crc_errors, get_uart_crc_errors());
+            set_sensor(uart_crc_errors, get_uart_crc_errors());
 
             // Save target temperature since it gets messed up by the mode switch command
             if ((this->mode == CLIMATE_MODE_COOL || this->mode == CLIMATE_MODE_HEAT) && target_temperature > 0)
@@ -435,11 +435,11 @@ public:
     sensor::Sensor indoor_pipe_temperature;
     sensor::Sensor indoor_humidity_setting;
     sensor::Sensor indoor_humidity_status;
-    sensor::Sensor UART_crc_errors;
+    sensor::Sensor uart_crc_errors;
 
 private:
-    float heat_tgt_temp = 16;
-    float cool_tgt_temp = 26;
+    // float heat_tgt_temp = 16; not needed
+    // float cool_tgt_temp = 26; not needed
     float tgt_temp = 25;
 
     bool read_response()
