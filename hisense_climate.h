@@ -4,7 +4,7 @@
 
 static const char *const TAG = "hisense_ac.climate";
 
-static const uint32_t ESPAC_POLL_INTERVAL = 2000; // in milliseconds,
+static const uint32_t ESPAC_POLL_INTERVAL = 8000; // in milliseconds,
 
 class HisenseAC : public PollingComponent, public Climate, public UARTDevice
 {
@@ -22,6 +22,21 @@ public:
                                        indoor_humidity_setting(),
                                        indoor_humidity_status(),
                                        uart_crc_errors() {}
+
+    void ESP_LOGD_HEX(uint8_t bytes[], size_t len, uint8_t separator) {
+        std::string res;
+        //size_t len = sizeof(bytes*);
+        char buf[5];
+        for (size_t i = 0; i < len; i++) {
+            if (i > 0) {
+            res += separator;
+        }
+        sprintf(buf, "%02X", bytes[i]);
+        res += buf;
+    }
+    ESP_LOGD("custom", "%s", res.c_str());
+  }
+
 
     void send_custom_command(const char* c_cmd)
     {
@@ -59,7 +74,7 @@ public:
         if (read_response())
         {
 
-            ESP_LOGD(
+/*            ESP_LOGD(
                 TAG,
                 "compf: %d compf_set: %d compf_snd: %d\n",
                 ((Device_Status*)int_buf)->compressor_frequency,
@@ -84,7 +99,7 @@ public:
                 "indor_humid_set: %d indoor_humid: %d\n",
                 ((Device_Status*)int_buf)->indoor_humidity_setting,
                 ((Device_Status*)int_buf)->indoor_humidity_status);
-
+*/
             target_temperature = ((Device_Status*)int_buf)->indoor_temperature_setting;
             current_temperature = ((Device_Status*)int_buf)->indoor_temperature_status;
 
@@ -209,6 +224,7 @@ public:
         uint8_t response_buf[resp_size];
         if (call.get_mode().has_value())
         {
+            ESP_LOGD(TAG, "Mode change request");
             // Save target temperature since it gets messed up by the mode switch command
             if ((this->mode == CLIMATE_MODE_COOL || this->mode == CLIMATE_MODE_HEAT) && target_temperature > 0)
             {
@@ -253,6 +269,7 @@ public:
 
         if (call.get_target_temperature().has_value())
         {
+            ESP_LOGD(TAG, "Temp change request");
             // User requested target temperature change
             float temp = *call.get_target_temperature();
 
@@ -265,6 +282,7 @@ public:
 
         if (call.get_fan_mode().has_value())
         {
+            ESP_LOGD(TAG, "Fan change request");
             ClimateFanMode fm = *call.get_fan_mode();
             switch (fm)
             {
@@ -292,6 +310,7 @@ public:
 
         if (call.get_swing_mode().has_value())
         {
+            ESP_LOGD(TAG, "Swing change request");
             uint32_t start_time = millis();
             ClimateSwingMode sm = *call.get_swing_mode();
 
@@ -370,6 +389,7 @@ public:
 
         if (call.get_preset().has_value())
         {
+            ESP_LOGD(TAG, "Preset change request.");
             ClimatePreset pre = *call.get_preset();
             switch (pre)
             {
@@ -488,6 +508,7 @@ private:
 
     void send_command(uint8_t cmd[], size_t sz)
     {
+        ESP_LOGD_HEX(cmd, sz ,':');
         write_array(cmd, sz);
         flush();
         read_response();
@@ -501,13 +522,13 @@ private:
     
     uint8_t get_uart_crc_errors() const
     {
-        return uart_crc_errors;
+        return uart_crc_errors_counter;
     }
     
     void set_uart_crc_errors()
     {
-        if (uart_crc_errors < 100)
-            ++uart_crc_errors;
+        if (uart_crc_errors_counter < 100)
+            ++uart_crc_errors_counter;
     }
     
     void bzzz(uint32_t how_long)
@@ -579,5 +600,5 @@ private:
     }
 
     uint8_t int_buf[256];
-    uint8_t uart_crc_errors = 0;
+    uint8_t uart_crc_errors_counter = 0;
 };
