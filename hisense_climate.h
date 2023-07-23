@@ -38,9 +38,14 @@ public:
   }
 
 
-    void send_custom_command(const char* c_cmd)
+    void send_custom_command(const std::string c_cmd)
     {
-        ESP_LOGD(TAG, "Custom command: %s received from outside.", c_cmd);
+        ESP_LOGD(TAG, "Custom command: %s received from outside.", c_cmd.c_str());
+        if (c_cmd == "hor_dir")
+            send_command(hor_dir, sizeof(hor_dir));
+        else if (c_cmd == "hor_swing")
+            send_command(hor_swing, sizeof(hor_swing));
+
     }
 
     void setup() override
@@ -471,6 +476,7 @@ private:
 
         size = available();
         bool read_success = read_array(int_buf, size);
+        ESP_LOGD_HEX(int_buf, size, ':');
 
         // Exit if we timed out
         if (!read_success)
