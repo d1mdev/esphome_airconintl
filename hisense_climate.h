@@ -2,13 +2,21 @@
 #include "esphome/components/sensor/sensor.h"
 #include "hisense_packet.h"
 
-static const char *const TAG = "hisense_ac.climate";
+static const char* TAG = "hisense_ac.climate"; //Logging tag
 
 static const uint32_t ESPAC_POLL_INTERVAL = 8000; // in milliseconds,
 
 class HisenseAC : public PollingComponent, public Climate, public UARTDevice
 {
 public:
+
+        /**
+         * Create a new HisenseAC object
+         *
+         * Args:
+         *   UARTComponent: pointer to UART component
+         */
+
     HisenseAC(UARTComponent *parent) : PollingComponent(ESPAC_POLL_INTERVAL),
                                        UARTDevice(parent),
                                        compressor_frequency(),
@@ -22,6 +30,9 @@ public:
                                        indoor_humidity_setting(),
                                        indoor_humidity_status(),
                                        uart_crc_errors() {}
+
+    // print the current configuration
+    // void dump_config() override; - for future conversion to component
 
     void ESP_LOGD_HEX(uint8_t bytes[], size_t len, uint8_t separator) {
         std::string res;
@@ -222,6 +233,9 @@ public:
             }
         }
     }
+
+    // Debugging function to print the object's state.
+    // void dump_state(); - for future conversion to component
 
     void control(const ClimateCall &call) override
     {
@@ -449,6 +463,13 @@ public:
         traits.set_supports_action(true);
         return traits;
     }
+
+    // Get a mutable reference to the traits that we support.
+    // climate::ClimateTraits& config_traits(); - for future conversion to component
+
+    // Use the temperature from an external sensor. Use
+    // set_remote_temp(0) to switch back to the internal sensor.
+    // void set_remote_temperature(float);
 
     sensor::Sensor compressor_frequency;
     sensor::Sensor compressor_frequency_setting;
