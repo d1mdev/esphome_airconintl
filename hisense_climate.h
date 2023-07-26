@@ -56,6 +56,8 @@ public:
             send_command(hor_dir, sizeof(hor_dir));
         else if (c_cmd == "hor_swing")
             send_command(hor_swing, sizeof(hor_swing));
+        else if  (c_cmd == "speed_high")
+            send_command(speed_high, sizeof(speed_high));
 
     }
 
@@ -116,6 +118,7 @@ public:
                 ((Device_Status*)int_buf)->indoor_humidity_setting,
                 ((Device_Status*)int_buf)->indoor_humidity_status);
 */
+            ESP_LOGD(TAG, "wind_status - %d", ((Device_Status*)int_buf)->wind_status);
             target_temperature = ((Device_Status*)int_buf)->indoor_temperature_setting;
             current_temperature = ((Device_Status*)int_buf)->indoor_temperature_status;
 
@@ -437,7 +440,7 @@ public:
         auto traits = climate::ClimateTraits();
         traits.set_supports_current_temperature(true);
         traits.set_visual_min_temperature(16);
-        traits.set_visual_max_temperature(30);
+        traits.set_visual_max_temperature(32);
         traits.set_visual_temperature_step(1);
         traits.set_supported_modes({
             climate::CLIMATE_MODE_OFF,
@@ -492,7 +495,7 @@ private:
     {
         int size = 0;
         uint32_t start_time = millis();
-        while (millis() - start_time < 250)
+        while (millis() - start_time < 500)
             ;
 
         size = available();
