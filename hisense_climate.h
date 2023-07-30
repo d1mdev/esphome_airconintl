@@ -49,16 +49,11 @@ public:
   }
 
 
-    void send_custom_command(const std::string c_cmd)
+    void send_custom_command(uint8_t (&c_cmd)[50])
     {
-        ESP_LOGD(TAG, "Custom command: %s received from outside.", c_cmd.c_str());
-        if (c_cmd == "hor_dir")
-            send_command(hor_dir, sizeof(hor_dir));
-        else if (c_cmd == "hor_swing")
-            send_command(hor_swing, sizeof(hor_swing));
-        else if  (c_cmd == "speed_high")
-            send_command(speed_high, sizeof(speed_high));
-
+        size_t size = 50;
+        ESP_LOGD(TAG, "Custom command: received from outside with size: %d.", size);
+        send_command(c_cmd, 50);
     }
 
     void setup() override
