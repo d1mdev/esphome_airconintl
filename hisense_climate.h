@@ -4,7 +4,7 @@
 
 static const char* TAG = "hisense_ac.climate"; //Logging tag
 
-static const uint32_t ESPAC_POLL_INTERVAL = 8000; // in milliseconds,
+static const uint32_t ESPAC_POLL_INTERVAL = 3000; // in milliseconds,
 
 class HisenseAC : public PollingComponent, public Climate, public UARTDevice
 {
@@ -40,20 +40,19 @@ public:
         char buf[5];
         for (size_t i = 0; i < len; i++) {
             if (i > 0) {
-            res += separator;
+                res += separator;
+            }
+            sprintf(buf, "%02X", bytes[i]);
+            res += buf;
         }
-        sprintf(buf, "%02X", bytes[i]);
-        res += buf;
+        ESP_LOGD("custom", "%s", res.c_str());
     }
-    ESP_LOGD("custom", "%s", res.c_str());
-  }
-
 
     void send_custom_command(uint8_t (&c_cmd)[50])
     {
-        size_t size = 50;
+        const size_t size = 50;
         ESP_LOGD(TAG, "Custom command: received from outside with size: %d.", size);
-        send_command(c_cmd, 50);
+        send_command(c_cmd, size);
     }
 
     void setup() override
@@ -204,7 +203,7 @@ public:
             {
                 fan_mode = climate::CLIMATE_FAN_QUIET;
             }
-            else if (((Device_Status*)int_buf)->wind_status == 1)
+            else if (((Device_Status*)int_buf)->wind_status == 1  || ((Device_Status*)int_buf)->wind_status == 0)
             {
                 fan_mode = climate::CLIMATE_FAN_AUTO;
             }

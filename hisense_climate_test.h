@@ -40,21 +40,19 @@ public:
         char buf[5];
         for (size_t i = 0; i < len; i++) {
             if (i > 0) {
-            res += separator;
-        }
+                res += separator;
+            }
         sprintf(buf, "%02X", bytes[i]);
         res += buf;
-    }
+        }
     ESP_LOGD("custom", "%s", res.c_str());
-  }
-
+    }
 
     void send_custom_command(uint8_t (&c_cmd)[50])
     {
-        size_t size = 50;
-        //while(*c_cmd++ < ?) size++;
+        const size_t size = 50;
         ESP_LOGD(TAG, "Custom command: received from outside with size: %d.", size);
-        send_command(c_cmd, 50);
+        send_command(c_cmd, size);
     }
 
     void setup() override
