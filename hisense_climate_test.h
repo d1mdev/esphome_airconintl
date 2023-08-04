@@ -179,31 +179,31 @@ public:
                 }
             }
 
-            if (((Device_Status*)int_buf)->wind_status == 18 || ((Device_Status*)int_buf)->wind_status == 16)
+            if (((Device_Status*)int_buf)->wind_status == 18)
+            {
+                fan_mode = climate::CLIMATE_FAN_DIFFUSE;
+            }
+ 			else if (((Device_Status*)int_buf)->wind_status == 16)
             {
                 fan_mode = climate::CLIMATE_FAN_HIGH;
             }
-/* 			else if (((Device_Status*)int_buf)->wind_status == 16)
-            {
-                fan_mode = climate::CLIMATE_FAN_HIGH;
-            } */
-            else if (((Device_Status*)int_buf)->wind_status == 14 || ((Device_Status*)int_buf)->wind_status == 12)
+            else if (((Device_Status*)int_buf)->wind_status == 14)
             {
                 fan_mode = climate::CLIMATE_FAN_MEDIUM;
             }
-/* 			else if (((Device_Status*)int_buf)->wind_status == 12)
+ 			else if (((Device_Status*)int_buf)->wind_status == 12)
             {
                 fan_mode = climate::CLIMATE_FAN_LOW;
-            } */
+            }
             else if (((Device_Status*)int_buf)->wind_status == 10)
             {
-                fan_mode = climate::CLIMATE_FAN_LOW;
+                fan_mode = climate::CLIMATE_FAN_FOCUS;
             }
             else if (((Device_Status*)int_buf)->wind_status == 2)
             {
                 fan_mode = climate::CLIMATE_FAN_QUIET;
             }
-            else if (((Device_Status*)int_buf)->wind_status == 1)
+            else if (((Device_Status*)int_buf)->wind_status == 1) || ((Device_Status*)int_buf)->wind_status == 0)
             {
                 fan_mode = climate::CLIMATE_FAN_AUTO;
             }
@@ -305,6 +305,9 @@ public:
             case climate::CLIMATE_FAN_AUTO:
                 send_command(speed_auto, sizeof(speed_auto));
                 break;
+            case climate::CLIMATE_FAN_FOCUS:
+                send_command(speed_lower, sizeof(speed_lower));
+                break;
             case climate::CLIMATE_FAN_LOW:
                 send_command(speed_low, sizeof(speed_low));
                 break;
@@ -312,7 +315,10 @@ public:
                 send_command(speed_med, sizeof(speed_med));
                 break;
             case climate::CLIMATE_FAN_HIGH:
-                send_command(speed_max, sizeof(speed_max));
+                send_command(speed_high, sizeof(speed_high));
+                break;
+            case climate::CLIMATE_FAN_DIFFUSE:
+                send_command(speed_higher, sizeof(speed_higher));
                 break;
             case climate::CLIMATE_FAN_QUIET:
                 send_command(speed_mute, sizeof(speed_mute));
@@ -449,6 +455,8 @@ public:
                                           climate::CLIMATE_SWING_HORIZONTAL});
         traits.set_supported_fan_modes({
             climate::CLIMATE_FAN_AUTO,
+            climate::CLIMATE_FAN_DIFFUSE,
+            climate::CLIMATE_FAN_FOCUS,
             climate::CLIMATE_FAN_LOW,
             climate::CLIMATE_FAN_MEDIUM,
             climate::CLIMATE_FAN_HIGH,
