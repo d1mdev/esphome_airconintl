@@ -1,6 +1,6 @@
 #include "esphome.h"
 #include "esphome/components/sensor/sensor.h"
-#include "hisense_packet.h"
+#include "hisense_packet_test.h"
 
 static const char* TAG = "hisense_ac.climate"; //Logging tag
 
@@ -48,11 +48,11 @@ public:
     ESP_LOGD("custom", "%s", res.c_str());
     }
 
-    void send_custom_command(uint8_t (&c_cmd)[50])
+    void send_custom_command(uint8_t c_cmd[], size_t sz = 50)
     {
         const size_t size = 50;
-        ESP_LOGD(TAG, "Custom command: received from outside with size: %d.", size);
-        send_command(c_cmd, size);
+        ESP_LOGD(TAG, "Custom command: received from outside with size: %d.", sz);
+        send_command(c_cmd, sz);
     }
 
     void setup() override
@@ -203,7 +203,7 @@ public:
             {
                 fan_mode = climate::CLIMATE_FAN_QUIET;
             }
-            else if (((Device_Status*)int_buf)->wind_status == 1) || ((Device_Status*)int_buf)->wind_status == 0)
+            else if (((Device_Status*)int_buf)->wind_status == 1 || ((Device_Status*)int_buf)->wind_status == 0)
             {
                 fan_mode = climate::CLIMATE_FAN_AUTO;
             }
