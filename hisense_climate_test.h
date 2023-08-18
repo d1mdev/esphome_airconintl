@@ -1,10 +1,13 @@
 #include "esphome.h"
+#include "esphome/components/binary_sensor/binary_sensor.h"
 #include "esphome/components/sensor/sensor.h"
 #include "hisense_packet_test.h"
 
 static const char* TAG = "hisense_ac.climate"; //Logging tag
 
 static const uint32_t ESPAC_POLL_INTERVAL = 8000; // in milliseconds,
+static const uint32_t ESPAC_MIN_TEMPERATURE = 16; // min temperature
+static const uint32_t ESPAC_MAX_TEMPERATURE = 32; // max temperature
 
 class HisenseAC : public PollingComponent, public Climate, public UARTDevice
 {
@@ -29,7 +32,8 @@ public:
                                        indoor_pipe_temperature(),
                                        indoor_humidity_setting(),
                                        indoor_humidity_status(),
-                                       uart_crc_errors() {}
+                                       uart_crc_errors(),
+                                       display_state() {}
 
     // print the current configuration
     // void dump_config() override; - for future conversion to component
@@ -54,6 +58,14 @@ public:
         ESP_LOGD(TAG, "Custom command: received from outside with size: %d.", sz);
         send_command(c_cmd, sz);
     }
+    
+    void switch_display()
+    {
+        if (display_state.get_raw_state())
+            send_command(display_on, sizeof(display_on));
+        else
+            send_command(display_off, sizeof(display_off));
+    }
 
     void setup() override
     {
@@ -68,6 +80,7 @@ public:
         indoor_humidity_setting.set_state_class(sensor::STATE_CLASS_MEASUREMENT);
         indoor_humidity_status.set_state_class(sensor::STATE_CLASS_MEASUREMENT);
         uart_crc_errors.set_state_class(sensor::STATE_CLASS_MEASUREMENT);
+        //display_state.set_device_class(binary_sensor::BinarySensorDeviceClass.POWER);
     }
 
     void update() override
@@ -222,6 +235,7 @@ public:
             set_sensor(indoor_humidity_setting, ((Device_Status*)int_buf)->indoor_humidity_setting);
             set_sensor(indoor_humidity_status, ((Device_Status*)int_buf)->indoor_humidity_status);
             set_sensor(uart_crc_errors, get_uart_crc_errors());
+            set_sensor(display_state, ((Device_Status*)int_buf)->display_led);
 
             // Save target temperature since it gets messed up by the mode switch command
             if ((this->mode == CLIMATE_MODE_COOL || this->mode == CLIMATE_MODE_HEAT) && target_temperature > 0)
@@ -439,8 +453,8 @@ public:
         // The capabilities of the climate device
         auto traits = climate::ClimateTraits();
         traits.set_supports_current_temperature(true);
-        traits.set_visual_min_temperature(16);
-        traits.set_visual_max_temperature(32);
+        traits.set_visual_min_temperature(ESPAC_MIN_TEMPERATURE);
+        traits.set_visual_max_temperature(ESPAC_MAX_TEMPERATURE);
         traits.set_visual_temperature_step(1);
         traits.set_supported_modes({
             climate::CLIMATE_MODE_OFF,
@@ -454,13 +468,13 @@ public:
                                           climate::CLIMATE_SWING_VERTICAL,
                                           climate::CLIMATE_SWING_HORIZONTAL});
         traits.set_supported_fan_modes({
-            climate::CLIMATE_FAN_AUTO,
-            climate::CLIMATE_FAN_DIFFUSE,
-            climate::CLIMATE_FAN_FOCUS,
-            climate::CLIMATE_FAN_LOW,
-            climate::CLIMATE_FAN_MEDIUM,
-            climate::CLIMATE_FAN_HIGH,
-            climate::CLIMATE_FAN_QUIET,
+            climate::CLIMATE_FAN_AUTO,    // auto
+            climate::CLIMATE_FAN_LOW,     // ||
+            climate::CLIMATE_FAN_MEDIUM,  // |||
+            climate::CLIMATE_FAN_HIGH,    // ||||
+            climate::CLIMATE_FAN_FOCUS,   // |||||
+            climate::CLIMATE_FAN_DIFFUSE, // |
+            climate::CLIMATE_FAN_QUIET,   // silent
         });
         traits.set_supported_presets({climate::CLIMATE_PRESET_NONE,
                                       climate::CLIMATE_PRESET_BOOST,
@@ -487,6 +501,8 @@ public:
     sensor::Sensor indoor_humidity_setting;
     sensor::Sensor indoor_humidity_status;
     sensor::Sensor uart_crc_errors;
+    sensor::Sensor display_state;
+    binary_sensor::BinarySensor sensor_display;
 
 private:
     // float heat_tgt_temp = 16; not needed
