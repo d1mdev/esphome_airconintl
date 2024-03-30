@@ -12,7 +12,7 @@ I referenced the work of several others to make this happen:
 This thread in particular was quite useful:
 https://github.com/deiger/AirCon/issues/1
 
-I'm using an ESP-32 with a serial to 485 adapter board and an expansion board for power and parts connection. 5v input plug directly into the AC connector.
+I'm using an ESP-32 with a serial to 485 converter and an expansion board for power and parts connection. 5v input plug directly into the AC connector.
 
 The pinout of the connector is:
 1) (Black wire) GND
